@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/go-wechat-bot/wx/core/service"
+)
 
 func main(){
-	fmt.Println("aaa")
+	service.Start()
 }
