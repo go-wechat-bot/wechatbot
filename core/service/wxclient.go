@@ -74,5 +74,11 @@ func UpdateWechatQrcodeStatus(){
 // 检测扫码状态
 func checkWechatLoginCode(content string){
 	split := strings.Split(content, ";")
-	fmt.Println(split)
+	if code := strings.Split(split[0],"=") ; code[1] == "201"{
+		// 保存头像
+
+	}else if(code[1] == "200"){
+		// 登录成功
+	}
+
 }
