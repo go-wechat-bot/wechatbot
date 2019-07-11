@@ -1,8 +1,10 @@
 package service
 
 import (
+	"fmt"
 	"time"
 )
+
 // 当前系统状态
 const (
 	STATUS_INIT = 0;
@@ -15,8 +17,13 @@ type wechat_info_type struct{
 }
 var wechat_info wechat_info_type
 
+
+
+
+
 // 开始
 func Start(){
+	wxinit()
 	now_status := STATUS_INIT
 	// 获取登录二维码
 	wechat_info.qrcode = GetWechatQRLogin()
@@ -29,3 +36,14 @@ func Start(){
 	}
 }
 
+
+func wxinit(){
+	markDir("runtime")
+	markDir("runtime/log")
+	markDir("runtime/tmp")
+	markDir("runtime/user")
+}
+
+func f(s interface{}){
+	fmt.Println(s)
+}

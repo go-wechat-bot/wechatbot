@@ -2,10 +2,13 @@ package service
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -76,9 +79,71 @@ func checkWechatLoginCode(content string){
 	split := strings.Split(content, ";")
 	if code := strings.Split(split[0],"=") ; code[1] == "201"{
 		// 保存头像
-
+		writeWechatAvatar(split[1]+";"+split[2])
 	}else if(code[1] == "200"){
 		// 登录成功
+		fmt.Println(split)
+	}
+}
+
+// 判断文件夹是否存在
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
+
+func writeWechatAvatar(base64 string){
+	data := strings.Replace(strings.Replace(base64, "window.userAvatar = '", "", 1),"'","",1)
+
+	fmt.Println(WriteFile("runtime/tmp", data))
+}
+
+func markDir(_dir string){
+	exist, err := PathExists(_dir) ;
+	if  err != nil{
+		fmt.Printf("get dir error![%v]\n", err)
+		return
+	}
+	os.Remove("runtime/tmp/avatar.jpg")
+	if exist {
+		fmt.Printf("has dir![%v]\n", _dir)
+	} else {
+		fmt.Printf("no dir![%v]\n", _dir)
+		// 创建文件夹
+		err := os.Mkdir(_dir, os.ModePerm)
+		if err != nil {
+			fmt.Printf("mkdir failed![%v]\n", err)
+		} else {
+			fmt.Printf("mkdir success!\n")
+		}
+	}
+}
+
+//写入文件,保存
+func WriteFile(path string, base64_image_content string) bool {
+	b, _ := regexp.MatchString(`^data:\s*img\/(\w+);base64,`, base64_image_content)
+	if !b {
+		return false
+	}
+	re, _ := regexp.Compile(`^data:\s*img\/(\w+);base64,`)
+	base64Str := re.ReplaceAllString(base64_image_content, "")
+	if  ok, _ := PathExists(path); !ok {
+		os.Mkdir(path, 0666)
+	}
+	file := path  + "/avatar.jpg"
+	byte, _ := base64.StdEncoding.DecodeString(base64Str)
+
+	fmt.Println(path  + "/avatar.jpg")
+	err := ioutil.WriteFile(file, byte, 0666)
+	if err != nil {
+		log.Println(err)
 	}
 
+	return false
 }
